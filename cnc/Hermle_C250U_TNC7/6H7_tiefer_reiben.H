@@ -100,7 +100,7 @@ CYCL DEF 412 BOHRUNG ALS BEZUG
 ;    L X.. Y.. / CYCL CALL Zeilen ergaenzen.
 ; ---------------------------------------------------------------
 TOOL CALL "REIBAHLE_D6H7" Z S1200                  ; *** Werkzeugname/-nummer, Drehzahl anpassen
-L Z+100 R0 FMAX M3
+L Z+100 R0 FMAX M3 M8                              ; Spindel EIN, Kuehlmittel EIN
 
 CYCL DEF 201 REIBEN
    Q200=+2     ;SICHERHEITSABSTAND
@@ -113,7 +113,7 @@ CYCL DEF 201 REIBEN
 
 CALL LBL 1
 
-L Z+100 R0 FMAX M9
+L Z+100 R0 FMAX M5 M9                              ; Spindel HALT, Kuehlmittel AUS
 M30
 
 
