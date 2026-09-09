@@ -8,8 +8,9 @@ BEGIN PGM 6H7_TIEFER_REIBEN MM
 ; siehe Ansicht E-E der Zeichnung).
 ;
 ; Ablauf:
-;   1) Bohrung 1 UND Bohrung 2 (beide 6H7) antasten -> Grunddrehung
-;      ueber die Verbindungslinie beider Bohrungen (Zyklus 401)
+;   1) Bohrung 1 UND Bohrung 2 (beide 6H7) antasten -> KEINE
+;      Grunddrehung (Software), sondern der Tisch (Drehachse C)
+;      wird real um den gemessenen Winkel gedreht (Zyklus 403)
 ;   2) Bohrung 1 (6H7) erneut antasten -> wird neuer Werkstueck-
 ;      Nullpunkt X0/Y0 (Zyklus 412)
 ;   3) Bohrung 1 (jetzt bei X0 Y0) tiefer reiben (Zyklus 201),
@@ -19,9 +20,13 @@ BEGIN PGM 6H7_TIEFER_REIBEN MM
 ;   - Alle Q-Parameter im Kopf des Programms (Q1...Q11) mit den
 ;     realen Werten aus Zeichnung/CAM belegen. Aktuell sind es
 ;     Platzhalter!
-;   - Q-Parameter-Belegung der Zyklen 401/412 im Klartext-Editor der
+;   - Zyklus 403 dreht die C-Achse real - VOR dem Reiben pruefen,
+;     dass die Basisdrehung im Bezugspunkt danach 0 ist (Tisch ist
+;     jetzt mechanisch ausgerichtet, nicht rechnerisch).
+;   - Q-Parameter-Belegung der Zyklen 403/412 im Klartext-Editor der
 ;     TNC7 gegenpruefen (Hilfefenster zeigt die fuer den installierten
-;     NC-Software-Stand aktuellen Feldnamen/Reihenfolge).
+;     NC-Software-Stand aktuellen Feldnamen/Reihenfolge sowie die
+;     Nummer der Kompensationsachse).
 ;   - Erstlauf im Testlauf-Grafikmodus bzw. im Einzelsatz mit
 ;     reduziertem Vorschub und vergroessertem Sicherheitsabstand
 ;     pruefen. Bei Ø0,01-Toleranz unbedingt Messprotokoll nach dem
@@ -33,7 +38,7 @@ BEGIN PGM 6H7_TIEFER_REIBEN MM
 ; ---------------------------------------------------------------
 Q1  = +0     ;BOHRUNG 1 (6H7, wird Nullpunkt + tiefer gerieben): X-SOLLKOORDINATE   *** eintragen
 Q2  = +0     ;BOHRUNG 1: Y-SOLLKOORDINATE                                          *** eintragen
-Q3  = +0     ;BOHRUNG 2 (6H7, nur fuer Grunddrehung): X-SOLLKOORDINATE             *** eintragen
+Q3  = +0     ;BOHRUNG 2 (6H7, nur fuer Ausrichtung ueber Drehachse): X-SOLLKOORDINATE *** eintragen
 Q4  = +0     ;BOHRUNG 2: Y-SOLLKOORDINATE                                          *** eintragen
 Q5  = +50    ;SICHERE HOEHE Z (abs.)                                               *** pruefen
 Q6  = -5     ;MESSHOEHE Z (inkr. zur Werkstueckoberkante)                          *** pruefen
@@ -49,11 +54,11 @@ TOOL CALL "TS_MESSTASTER" Z                        ; *** Tastername/-nummer anpa
 
 
 ; ---------------------------------------------------------------
-; 2) Grunddrehung ueber die 2x 6H7-Bohrungen antasten
-;    (Zyklus tastet beide Bohrungen selbststaendig an, bezogen auf
-;     den aktuell aktiven, noch nicht korrigierten Nullpunkt)
+; 2) Ausrichtung ueber die 2x 6H7-Bohrungen antasten - KEINE
+;    Grunddrehung: der Zyklus dreht die C-Achse (Tisch) real um den
+;    ermittelten Winkel, bis die Bohrungslinie mechanisch fluchtet.
 ; ---------------------------------------------------------------
-CYCL DEF 401 ROT-KOMPENSATION 2 BOHRUNGEN
+CYCL DEF 403 ROT-KOMPENSATION UEBER DREHACHSE
    Q263=+Q1    ;1. BOHRUNGSMITTE 1.ACHSE (X) = Bohrung 1
    Q264=+Q2    ;1. BOHRUNGSMITTE 2.ACHSE (Y) = Bohrung 1
    Q265=+Q3    ;2. BOHRUNGSMITTE 1.ACHSE (X) = Bohrung 2
@@ -61,9 +66,11 @@ CYCL DEF 401 ROT-KOMPENSATION 2 BOHRUNGEN
    Q261=+Q6    ;MESSHOEHE
    Q260=+Q5    ;SICHERE HOEHE
    Q301=1      ;FAHREN AUF SICHERE HOEHE ZWISCHEN BOHRUNGEN (1=ja)
-   Q307=-1     ;GRUNDDREHUNG IN AKTIVEN BEZUGSPUNKT SCHREIBEN (-1=aktiver BP)
+   Q312=6      ;KOMPENSATIONSACHSE (6=C-ACHSE)                          *** pruefen (Kinematik!)
+   Q336=+0     ;SOLLWINKEL BEZUGSACHSE
 
-; Ab hier ist die Grunddrehung aktiv.
+; Ab hier ist der Tisch (C-Achse) mechanisch ausgerichtet,
+; Basisdrehung im Bezugspunkt bleibt 0.
 
 
 ; ---------------------------------------------------------------
