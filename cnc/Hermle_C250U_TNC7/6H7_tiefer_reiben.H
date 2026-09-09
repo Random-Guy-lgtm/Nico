@@ -33,8 +33,12 @@ BEGIN PGM 6H7_TIEFER_REIBEN MM
 ;     Antasten pruefen, bevor gerieben wird.
 ; ================================================================
 
-BLK FORM 0.1 Z X-100 Y-100 Z-50
-BLK FORM 0.2 X+200 Y+150 Z+0
+; Nullpunkt liegt im rechten Bohrloch (Bohrung 1) - Rohteil liegt
+; daher ueberwiegend im negativen X-Bereich. Werte an das reale
+; Rohteil/die Aufspannung anpassen (nur fuer die Testlauf-Grafik
+; relevant, keine Auswirkung auf die reale Bearbeitung).
+BLK FORM 0.1 Z X-160 Y-35 Z-60                     ; *** anpassen
+BLK FORM 0.2 X+15 Y+35 Z+0                         ; *** anpassen
 
 
 ; ---------------------------------------------------------------
