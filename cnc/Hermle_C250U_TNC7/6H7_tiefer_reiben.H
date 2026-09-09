@@ -78,13 +78,16 @@ CYCL DEF 412 BOHRUNG ALS BEZUG ~
    Q261=-5 ;MESSHOEHE ~
    Q260=+50 ;SICHERE HOEHE ~
    Q301=1 ;FAHREN AUF SICHERE HOEHE ZWISCHEN PUNKTEN (1=ja) ~
-   Q305=0 ;NUMMER IN TABELLE (0 = aktiver Bezugspunkt) ~
+   Q305=-1 ;NUMMER IN TABELLE (-1 = aktiver Bezugspunkt) ~
    Q331=+0 ;NEUER BEZUGSPUNKT 1.ACHSE (0 = Bohrung 1 wird X0) ~
    Q332=+0 ;NEUER BEZUGSPUNKT 2.ACHSE (0 = Bohrung 1 wird Y0) ~
    Q303=1 ;MESSWERTUEBERTRAGUNG (1=aktiv)
 
 ; *** Q321/Q322 muessen mit Q263/Q264 aus Zyklus 403 uebereinstimmen.
-; *** Q305/Q303 gegen Zykleneditor pruefen.
+; Q305=0 hatte den neuen Nullpunkt NICHT in den aktiven Bezugspunkt
+; geschrieben (Reibahle traf die Mitte des Teils statt Bohrung 1) -
+; mit Q305=-1 (aktiver Bezugspunkt) korrigiert. Nach erstem Test
+; bitte pruefen, ob Bohrung 1 jetzt wirklich bei X+0 Y+0 liegt.
 
 ; Bohrung 1 liegt jetzt bei X+0 Y+0.
 
