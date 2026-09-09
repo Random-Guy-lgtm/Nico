@@ -12,7 +12,8 @@ BEGIN PGM 6H7_TIEFER_REIBEN MM
 ;      ueber die Verbindungslinie beider Bohrungen (Zyklus 401)
 ;   2) Bohrung 1 (6H7) erneut antasten -> wird neuer Werkstueck-
 ;      Nullpunkt X0/Y0 (Zyklus 412)
-;   3) Bohrung 1 (jetzt bei X0 Y0) tiefer reiben (Zyklus 201)
+;   3) Bohrung 1 (jetzt bei X0 Y0) tiefer reiben (Zyklus 201),
+;      Bearbeitungsposition ueber Kontur-Label (LBL 1) angefahren
 ;
 ; ACHTUNG - vor dem ersten Abarbeiten:
 ;   - Alle Q-Parameter im Kopf des Programms (Q1...Q11) mit den
@@ -87,11 +88,12 @@ CYCL DEF 412 BOHRUNG ALS BEZUG
 
 ; ---------------------------------------------------------------
 ; 4) Bohrung 1 (6H7) tiefer reiben
+;    Bearbeitungspositionen stehen als Kontur-Label (LBL 1) am Ende
+;    des Programms - fuer weitere Positionen dort einfach weitere
+;    L X.. Y.. / CYCL CALL Zeilen ergaenzen.
 ; ---------------------------------------------------------------
 TOOL CALL "REIBAHLE_D6H7" Z S1200                  ; *** Werkzeugname/-nummer, Drehzahl anpassen
-
-L Z+100 R0 FMAX
-L X+0 Y+0 R0 FMAX M3                               ; Bohrung 1 = neuer Nullpunkt
+L Z+100 R0 FMAX M3
 
 CYCL DEF 201 REIBEN
    Q200=+2     ;SICHERHEITSABSTAND
@@ -102,9 +104,18 @@ CYCL DEF 201 REIBEN
    Q203=+Q11   ;KOORDINATE OBERFLAECHE
    Q204=+50    ;2. SICHERHEITSABSTAND
 
-CYCL CALL
+CALL LBL 1
 
 L Z+100 R0 FMAX M9
 M30
+
+
+; ---------------------------------------------------------------
+; Kontur-Label: Bearbeitungspositionen fuer Zyklus 201
+; ---------------------------------------------------------------
+LBL 1
+L X+0 Y+0 R0 FMAX                                  ; Bohrung 1 = neuer Nullpunkt (aus Zyklus 412)
+CYCL CALL
+LBL 0
 
 END PGM 6H7_TIEFER_REIBEN MM
