@@ -17,13 +17,13 @@ BEGIN PGM 6H7_TIEFER_REIBEN MM
 ;      Bearbeitungsposition ueber Kontur-Label (LBL 1) angefahren
 ;
 ; ACHTUNG - vor dem ersten Abarbeiten:
-;   - Alle Q-Parameter im Kopf des Programms (Q1...Q11) mit den
-;     realen Werten aus Zeichnung/CAM belegen. Aktuell sind es
-;     Platzhalter!
+;   - Alle mit *** markierten Werte direkt in den Zyklen unten mit
+;     den realen Werten aus Zeichnung/CAM ueberschreiben. Aktuell
+;     sind es Platzhalter!
 ;   - Zyklus 403 dreht die C-Achse real - VOR dem Reiben pruefen,
 ;     dass die Basisdrehung im Bezugspunkt danach 0 ist (Tisch ist
 ;     jetzt mechanisch ausgerichtet, nicht rechnerisch).
-;   - Q-Parameter-Belegung der Zyklen 403/412 im Klartext-Editor der
+;   - Parameterbelegung der Zyklen 403/412 im Klartext-Editor der
 ;     TNC7 gegenpruefen (Hilfefenster zeigt die fuer den installierten
 ;     NC-Software-Stand aktuellen Feldnamen/Reihenfolge sowie die
 ;     Nummer der Kompensationsachse).
@@ -32,19 +32,6 @@ BEGIN PGM 6H7_TIEFER_REIBEN MM
 ;     pruefen. Bei Ø0,01-Toleranz unbedingt Messprotokoll nach dem
 ;     Antasten pruefen, bevor gerieben wird.
 ; ================================================================
-
-; ---------------------------------------------------------------
-; Q-Parameter-Tabelle - hier die realen Werte eintragen
-; ---------------------------------------------------------------
-Q1  = +0     ;BOHRUNG 1 (6H7, wird Nullpunkt + tiefer gerieben): X-SOLLKOORDINATE   *** eintragen
-Q2  = +0     ;BOHRUNG 1: Y-SOLLKOORDINATE                                          *** eintragen
-Q3  = +0     ;BOHRUNG 2 (6H7, nur fuer Ausrichtung ueber Drehachse): X-SOLLKOORDINATE *** eintragen
-Q4  = +0     ;BOHRUNG 2: Y-SOLLKOORDINATE                                          *** eintragen
-Q5  = +50    ;SICHERE HOEHE Z (abs.)                                               *** pruefen
-Q6  = -5     ;MESSHOEHE Z (inkr. zur Werkstueckoberkante)                          *** pruefen
-Q7  = 6      ;NENN-DURCHMESSER BOHRUNG (6H7)
-Q10 = +0     ;NEUE REIBTIEFE Z (inkr., negativ = "tiefer reiben")                  *** eintragen
-Q11 = +0     ;KOORDINATE OBERFLAECHE Z (abs.)                                      *** eintragen
 
 
 ; ---------------------------------------------------------------
@@ -59,14 +46,14 @@ TOOL CALL "TS_MESSTASTER" Z                        ; *** Tastername/-nummer anpa
 ;    ermittelten Winkel, bis die Bohrungslinie mechanisch fluchtet.
 ; ---------------------------------------------------------------
 CYCL DEF 403 ROT-KOMPENSATION UEBER DREHACHSE
-   Q263=+Q1    ;1. BOHRUNGSMITTE 1.ACHSE (X) = Bohrung 1
-   Q264=+Q2    ;1. BOHRUNGSMITTE 2.ACHSE (Y) = Bohrung 1
-   Q265=+Q3    ;2. BOHRUNGSMITTE 1.ACHSE (X) = Bohrung 2
-   Q266=+Q4    ;2. BOHRUNGSMITTE 2.ACHSE (Y) = Bohrung 2
-   Q261=+Q6    ;MESSHOEHE
-   Q260=+Q5    ;SICHERE HOEHE
+   Q263=+0     ;1. BOHRUNGSMITTE 1.ACHSE (X) = Bohrung 1              *** eintragen
+   Q264=+0     ;1. BOHRUNGSMITTE 2.ACHSE (Y) = Bohrung 1              *** eintragen
+   Q265=+0     ;2. BOHRUNGSMITTE 1.ACHSE (X) = Bohrung 2              *** eintragen
+   Q266=+0     ;2. BOHRUNGSMITTE 2.ACHSE (Y) = Bohrung 2              *** eintragen
+   Q261=-5     ;MESSHOEHE (inkr. zur Werkstueckoberkante)             *** pruefen
+   Q260=+50    ;SICHERE HOEHE (abs.)                                  *** pruefen
    Q301=1      ;FAHREN AUF SICHERE HOEHE ZWISCHEN BOHRUNGEN (1=ja)
-   Q312=6      ;KOMPENSATIONSACHSE (6=C-ACHSE)                          *** pruefen (Kinematik!)
+   Q312=6      ;KOMPENSATIONSACHSE (6=C-ACHSE)                        *** pruefen (Kinematik!)
    Q336=+0     ;SOLLWINKEL BEZUGSACHSE
 
 ; Ab hier ist der Tisch (C-Achse) mechanisch ausgerichtet,
@@ -77,18 +64,18 @@ CYCL DEF 403 ROT-KOMPENSATION UEBER DREHACHSE
 ; 3) Bohrung 1 (6H7) erneut antasten -> wird neuer Nullpunkt X0/Y0
 ; ---------------------------------------------------------------
 CYCL DEF 412 BOHRUNG ALS BEZUG
-   Q321=+Q1    ;BOHRUNGSMITTE 1.ACHSE (Sollwert Bohrung 1)
-   Q322=+Q2    ;BOHRUNGSMITTE 2.ACHSE (Sollwert Bohrung 1)
-   Q262=Q7     ;NENN-DURCHMESSER
+   Q321=+0     ;BOHRUNGSMITTE 1.ACHSE (Sollwert Bohrung 1)            *** eintragen (= Q263 oben)
+   Q322=+0     ;BOHRUNGSMITTE 2.ACHSE (Sollwert Bohrung 1)            *** eintragen (= Q264 oben)
+   Q262=6      ;NENN-DURCHMESSER (6H7)
    Q325=+0     ;STARTWINKEL
    Q247=+90    ;WINKELSCHRITT
-   Q261=+Q6    ;MESSHOEHE
-   Q260=+Q5    ;SICHERE HOEHE
+   Q261=-5     ;MESSHOEHE                                             *** pruefen (= Q261 oben)
+   Q260=+50    ;SICHERE HOEHE                                         *** pruefen (= Q260 oben)
    Q301=1      ;FAHREN AUF SICHERE HOEHE ZWISCHEN PUNKTEN (1=ja)
-   Q305=0      ;NUMMER IN TABELLE (0 = aktiver Bezugspunkt)             *** pruefen
+   Q305=0      ;NUMMER IN TABELLE (0 = aktiver Bezugspunkt)           *** pruefen
    Q331=+0     ;NEUER BEZUGSPUNKT 1.ACHSE (0 = Bohrung 1 wird X0)
    Q332=+0     ;NEUER BEZUGSPUNKT 2.ACHSE (0 = Bohrung 1 wird Y0)
-   Q303=1      ;MESSWERTUEBERTRAGUNG (1=aktiv)                         *** pruefen
+   Q303=1      ;MESSWERTUEBERTRAGUNG (1=aktiv)                        *** pruefen
 
 ; Bohrung 1 liegt jetzt bei X+0 Y+0.
 
@@ -104,11 +91,11 @@ L Z+100 R0 FMAX M3 M8                              ; Spindel EIN, Kuehlmittel EI
 
 CYCL DEF 201 REIBEN
    Q200=+2     ;SICHERHEITSABSTAND
-   Q201=+Q10   ;TIEFE (inkr., neuer/groesserer Wert = "tiefer reiben")
+   Q201=-35    ;TIEFE (inkr., neuer/groesserer Wert = "tiefer reiben") *** eintragen
    Q206=100    ;VORSCHUB TIEFENZUSTELLUNG
    Q211=0.5    ;VERWEILZEIT UNTEN
    Q208=250    ;VORSCHUB RUECKZUG
-   Q203=+Q11   ;KOORDINATE OBERFLAECHE
+   Q203=+0     ;KOORDINATE OBERFLAECHE                                *** eintragen
    Q204=+50    ;2. SICHERHEITSABSTAND
 
 CALL LBL 1
